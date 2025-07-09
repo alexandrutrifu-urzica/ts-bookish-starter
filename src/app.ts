@@ -1,6 +1,6 @@
 import express from 'express';
 import 'dotenv/config';
-import { Connection, ConnectionConfiguration } from 'tedious';
+import ConnectionPool from 'tedious-connection-pool';
 
 import healthcheckRoutes from './controllers/healthcheckController';
 import bookRoutes from './controllers/bookController';
@@ -16,29 +16,36 @@ app.listen(port, () => {
 /**
  * Tedious config
  */
-const config: ConnectionConfiguration = {
+const config = {
+    userName: 'test',
+    password: 'Parola123#',
     server: 'localhost', // or "localhost"
     options: {
         trustServerCertificate: true,
     },
-    authentication: {
-        type: 'default',
-        options: {
-            userName: 'test',
-            password: 'Parola123#',
-        },
-    },
 };
 
-export const connection = new Connection(config);
+const poolConfig = {
+    min: 2,
+    max: 4,
+    log: true,
+};
 
-connection.on('connect', function (err) {
-    if (err) {
-        console.log('Error: ', err);
-    }
+export const pool = new ConnectionPool(poolConfig, config);
+
+pool.on('error', function (err) {
+    console.error(err);
 });
 
-connection.connect();
+// export const connection = new Connection(config);
+//
+// connection.on('connect', function (err) {
+//     if (err) {
+//         console.log('Error: ', err);
+//     }
+// });
+//
+// connection.connect();
 
 /**
  * Primary app routes.

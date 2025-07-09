@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { Request as TediousRequest } from 'tedious';
 
-import { connection } from '../app';
+import { pool } from '../app';
 import { getCatalogue, getBook } from '../books/bookEndpointMethods';
 import { BookQuerier } from '../books/queries';
 
@@ -37,47 +37,22 @@ class BookController {
 
     async getBookByTitle(bookTitle: string, res: Response) {
         const query = this.querier.getBookByTitleQuery(bookTitle);
-
-        const request = new TediousRequest(query, (err, rowCount: number) => {
-            if (err) {
-                res.send(`Error: ${err}`);
-            } else {
-                console.log(rowCount);
-            }
-        });
-
-        const book = await getBook(connection, request);
+        const book = await getBook(pool, query);
 
         res.send(book.getJsonObject());
     }
 
     async getBookByID(bookID: string, res: Response) {
         const query = this.querier.getBookByIDQuery(bookID);
-
-        const request = new TediousRequest(query, (err, rowCount: number) => {
-            if (err) {
-                res.send(`Error: ${err}`);
-            } else {
-                console.log(rowCount);
-            }
-        });
-
-        const book = await getBook(connection, request);
+        const book = await getBook(pool, query);
 
         res.send(book.getJsonObject());
     }
 
     async getLibraryCatalogue(req: Request, res: Response) {
         const query = this.querier.getCatalogueQuery();
-        const request = new TediousRequest(query, (err, rowCount: number) => {
-            if (err) {
-                res.send(`Error: ${err}`);
-            } else {
-                console.log(rowCount);
-            }
-        });
 
-        res.send(await getCatalogue(connection, request));
+        res.send(await getCatalogue(pool, query));
     }
 
     createBook(req: Request, res: Response) {
