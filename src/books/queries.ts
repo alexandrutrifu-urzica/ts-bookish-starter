@@ -8,6 +8,12 @@ export class BookQuerier {
     getBookByIDQuery(bookID: string): string {
         return `
             select * from bookish.dbo.BOOKS
-            where ID=${bookID}`;
+            where id=${bookID}`;
+    }
+
+    getBookByTitleQuery(bookTitle: string): string {
+        return `
+            select * from bookish.dbo.BOOKS
+            where title='${bookTitle}'`;
     }
 }

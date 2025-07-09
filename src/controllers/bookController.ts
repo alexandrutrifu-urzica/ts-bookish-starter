@@ -2,7 +2,7 @@ import { Router, Request, Response } from 'express';
 import { Request as TediousRequest } from 'tedious';
 
 import { connection } from '../app';
-import { getCatalogue, getBookByID } from '../books/bookEndpointMethods';
+import { getCatalogue, getBook } from '../books/bookEndpointMethods';
 import { BookQuerier } from '../books/queries';
 
 class BookController {
@@ -11,7 +11,8 @@ class BookController {
 
     constructor() {
         this.router = Router();
-        this.router.get('/id/:bookID', this.getBookByID.bind(this));
+        this.router.get('/id/:bookID', this.getBookByField.bind(this));
+        this.router.get('/title/:bookTitle', this.getBookByField.bind(this));
         this.router.get('/catalogue', this.getLibraryCatalogue.bind(this));
 
         this.router.post('/', this.createBook.bind(this));
@@ -20,8 +21,35 @@ class BookController {
         this.querier = new BookQuerier();
     }
 
-    async getBookByID(req: Request, res: Response) {
-        const bookID = req.params.bookID;
+    getBookByField(req: Request, res: Response) {
+        const params = req.params;
+
+        if (params.bookID) {
+            this.getBookByID(params.bookID, res).then(() => {});
+            return;
+        }
+
+        if (params.bookTitle) {
+            this.getBookByTitle(params.bookTitle, res).then(() => {});
+            return;
+        }
+    }
+
+    async getBookByTitle(bookTitle: string, res: Response) {
+        const query = this.querier.getBookByTitleQuery(bookTitle);
+
+        const request = new TediousRequest(query, (err, rowCount: number) => {
+            if (err) {
+                res.send(`Error: ${err}`);
+            } else {
+                console.log(rowCount);
+            }
+        });
+
+        res.send(await getBook(connection, request));
+    }
+
+    async getBookByID(bookID: string, res: Response) {
         const query = this.querier.getBookByIDQuery(bookID);
 
         const request = new TediousRequest(query, (err, rowCount: number) => {
@@ -32,7 +60,7 @@ class BookController {
             }
         });
 
-        res.send(await getBookByID(connection, request));
+        res.send(await getBook(connection, request));
     }
 
     async getLibraryCatalogue(req: Request, res: Response) {
