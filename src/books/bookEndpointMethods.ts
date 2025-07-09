@@ -1,7 +1,7 @@
 import { Connection, Request } from 'tedious';
 import { Book } from './book';
 
-export function getBookByID(
+export function getBook(
     connection: Connection,
     request: Request,
 ): Promise<Book> {
