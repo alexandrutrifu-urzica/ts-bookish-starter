@@ -1,5 +1,6 @@
 import { Connection, Request } from 'tedious';
-import { Book } from './book';
+import { Book, BookFields } from './book';
+import { Author, AuthorFields } from './author';
 
 export function getBook(
     connection: Connection,
@@ -7,15 +8,36 @@ export function getBook(
 ): Promise<Book> {
     return new Promise((resolve, reject) => {
         let book: Book;
+        let author: Author;
 
         request.on('row', (columns) => {
-            type BookFields = [number, string, number, number, number];
+            type QueryFields = [
+                number,
+                string,
+                number,
+                number,
+                number,
+                number,
+                string,
+                string,
+            ];
 
-            const fieldValues: BookFields = columns.map(
+            const fieldValues: QueryFields = columns.map(
                 (column) => column.value,
+            ) as QueryFields;
+
+            const bookFields: BookFields = fieldValues.slice(
+                0,
+                5,
             ) as BookFields;
 
-            book = new Book(...fieldValues);
+            const authorFields: AuthorFields = fieldValues.slice(
+                5,
+            ) as AuthorFields;
+
+            book = new Book(...bookFields);
+            author = new Author(...authorFields);
+            book.author = author;
         });
 
         request.on('requestCompleted', () => {
