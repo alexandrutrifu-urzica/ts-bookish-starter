@@ -1,8 +1,12 @@
 import { Router, Request, Response } from 'express';
-import { Request as TediousRequest } from 'tedious';
 
 import { pool } from '../app';
-import { getCatalogue, getBook } from '../books/bookEndpointMethods';
+import {
+    getCatalogue,
+    getBook,
+    addBook,
+    insertAuthor,
+} from '../books/bookEndpointMethods';
 import { BookQuerier } from '../books/queries';
 
 class BookController {
@@ -16,6 +20,7 @@ class BookController {
         this.router.get('/catalogue', this.getLibraryCatalogue.bind(this));
 
         this.router.post('/', this.createBook.bind(this));
+        this.router.post('/authors', this.insertAuthor.bind(this));
 
         // Instantiate querier
         this.querier = new BookQuerier();
@@ -55,12 +60,16 @@ class BookController {
         res.send(await getCatalogue(pool, query));
     }
 
-    createBook(req: Request, res: Response) {
-        // TODO: implement functionality
-        return res.status(500).json({
-            error: 'server_error',
-            error_description: 'Endpoint not implemented yet.',
-        });
+    async insertAuthor(req: Request, res: Response) {
+        res.send(
+            await insertAuthor(pool, req.body.firstName, req.body.lastName),
+        );
+    }
+
+    async createBook(req: Request, res: Response) {
+        const newBookID = await addBook(pool, req);
+
+        res.send({ bookID: newBookID });
     }
 }
 

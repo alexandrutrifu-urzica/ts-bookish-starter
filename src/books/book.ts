@@ -9,7 +9,7 @@ export class Book {
     private _author: Author;
 
     constructor(
-        id: number,
+        id = 0,
         title: string,
         isbn: number,
         copiesOwned: number,
@@ -39,4 +39,10 @@ export class Book {
     }
 }
 
-export type BookFields = [number, string, number, number, number];
+export type BookFieldsType = [number, string, number, number, number];
+export interface BookFieldInterface {
+    title: string;
+    isbn: number;
+    copiesOwned: string;
+    copiesAvailable: number;
+}

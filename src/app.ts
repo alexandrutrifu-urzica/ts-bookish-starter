@@ -8,6 +8,7 @@ import bookRoutes from './controllers/bookController';
 const port = process.env['PORT'] || 31289;
 
 const app = express();
+app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.listen(port, () => {
     return console.log(`Express is listening at http://localhost:${port}`);
@@ -36,16 +37,6 @@ export const pool = new ConnectionPool(poolConfig, config);
 pool.on('error', function (err) {
     console.error(err);
 });
-
-// export const connection = new Connection(config);
-//
-// connection.on('connect', function (err) {
-//     if (err) {
-//         console.log('Error: ', err);
-//     }
-// });
-//
-// connection.connect();
 
 /**
  * Primary app routes.
