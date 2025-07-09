@@ -46,7 +46,9 @@ class BookController {
             }
         });
 
-        res.send(await getBook(connection, request));
+        const book = await getBook(connection, request);
+
+        res.send(book.getJsonObject());
     }
 
     async getBookByID(bookID: string, res: Response) {
@@ -60,7 +62,9 @@ class BookController {
             }
         });
 
-        res.send(await getBook(connection, request));
+        const book = await getBook(connection, request);
+
+        res.send(book.getJsonObject());
     }
 
     async getLibraryCatalogue(req: Request, res: Response) {
